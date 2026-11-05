@@ -6,6 +6,7 @@
   <title>Tawazon — Employee Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <style>
@@ -63,12 +64,12 @@
 
 <nav>
   <div class="nav-start">
-    <a href="employee-portal.html" class="nav-brand">⚡ Tawa<span>zon</span></a>
+    <a href="employee-portal.html" class="nav-brand"><img src="assets/logo.png" alt="Tawazon Logo" class="brand-logo-img" /><span class="brand-tawa">Tawa</span><span class="brand-zon">zon</span></a>
   </div>
   <div class="nav-end">
     <span style="color:#94a3b8; font-size:.88rem; font-weight:600; margin-inline-end:.5rem;" id="navUserName"></span>
-    <button class="lang-btn" onclick="i18n.toggle()">العربية</button>
-    <button class="btn-nav-logout" onclick="AUTH.logout()">خروج / Logout</button>
+    <button class="lang-btn" onclick="i18n.toggle()"><span class="nav-btn-icon">🌐</span> <span>العربية</span></button>
+    <button class="btn-nav-logout" onclick="AUTH.logout()"><span class="nav-btn-icon">🚪</span> <span>Logout</span></button>
   </div>
 </nav>
 
@@ -134,15 +135,7 @@
           <span class="hint" data-i18n="assess_vac_hint">Range: 0 – 30 days</span>
         </div>
 
-        <div class="form-group full-width">
-          <label for="feedback" data-i18n="assess_fb_label">Employee Feedback (Arabic or English) *</label>
-          <textarea id="feedback" rows="3"
-            data-i18n-ph="assess_fb_placeholder"
-            placeholder="How do you feel about your workload recently?" required></textarea>
-          <span class="hint" style="color:var(--muted);" data-i18n="assess_fb_hint">
-            Write in Arabic or English — the AI analyzes both languages.
-          </span>
-        </div>
+
       </div>
 
       <button type="submit" class="btn-primary" id="btnSaveAssess" style="width:100%; justify-content:center; margin-top:1rem;">
@@ -177,8 +170,8 @@
         <p id="resWorkload">—</p>
       </div>
       <div class="result-detail-item">
-        <h4 data-i18n="assess_sentiment_lbl">Sentiment Risk</h4>
-        <p id="resSentiment">—</p>
+        <h4 data-i18n="assess_model_lbl">ML Algorithm</h4>
+        <p id="resModel" style="color:var(--primary); font-size:1.05rem; font-weight:700;">Random Forest (Tabular ML)</p>
       </div>
     </div>
 
@@ -269,7 +262,6 @@
         document.getElementById("late_arrivals_month").value = latest.late_arrivals_month;
         document.getElementById("tasks_assigned").value = latest.tasks_assigned;
         document.getElementById("vacation_days_last_year").value = latest.vacation_days_last_year;
-        document.getElementById("feedback").value = latest.feedback;
 
         renderHistoryList(history);
       } else {
@@ -286,7 +278,7 @@
 
         const historyContainer = document.getElementById("historyList");
         if (historyContainer) {
-          historyContainer.innerHTML = `<p style="color:var(--muted); font-size:.9rem; padding:0.5rem 0;">${isAr ? "لم يتم إجراء أي تقييم بعد. يرجى تعبئة مؤشرات ساعات العمل وملاحظاتك أعلاه ثم الضغط على زر الحفظ لقياس مستوى الخطر فوراً." : "No assessment recorded yet. Please fill your daily hours and feedback above and click Save to compute your burnout diagnosis."}</p>`;
+          historyContainer.innerHTML = `<p style="color:var(--muted); font-size:.9rem; padding:0.5rem 0;">${isAr ? "لم يتم إجراء أي تقييم بعد. يرجى تعبئة مؤشرات ساعات العمل وملاحظاتك أعلاه ثم الضغط على زر الحفظ لقياس مستوى الخطر فوراً." : "No assessment recorded yet. Please fill your daily hours above and click Save to compute your burnout diagnosis."}</p>`;
         }
       }
     } catch (err) {
@@ -312,7 +304,6 @@
     const icon = lvl === "high" ? "🔴" : lvl === "medium" ? "🟡" : "🟢";
     document.getElementById("resLevelText").textContent = `${icon} ${data.level} Risk`;
     document.getElementById("resWorkload").textContent = `${(data.workload_probability * 100).toFixed(1)}%`;
-    document.getElementById("resSentiment").textContent = `${(data.sentiment_risk * 100).toFixed(1)}%`;
 
     document.getElementById("resReasons").innerHTML =
       data.top_reasons.map(r => `<li>${i18n.translateReason(r)}</li>`).join("");
@@ -434,7 +425,7 @@
       late_arrivals_month: parseInt(document.getElementById("late_arrivals_month").value),
       tasks_assigned: parseInt(document.getElementById("tasks_assigned").value),
       vacation_days_last_year: parseInt(document.getElementById("vacation_days_last_year").value),
-      feedback: document.getElementById("feedback").value.trim(),
+      feedback: "",
     };
 
     if (Object.values(payload).some(v => v === null || v === undefined || (typeof v === "number" && isNaN(v)))) {

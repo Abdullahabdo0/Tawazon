@@ -75,12 +75,12 @@ class Assessment(Base):
     late_arrivals_month = Column(Integer, nullable=False)
     tasks_assigned = Column(Integer, nullable=False)
     vacation_days_last_year = Column(Integer, nullable=False)
-    feedback = Column(Text, nullable=False)
+    feedback = Column(Text, nullable=True, default="")
 
     risk_score = Column(Integer, nullable=False)
     level = Column(String(20), nullable=False)  # "Low", "Medium", "High"
     workload_probability = Column(Float, nullable=False)
-    sentiment_risk = Column(Float, nullable=False)
+    sentiment_risk = Column(Float, nullable=True, default=0.0)
     top_reasons = Column(Text, nullable=False)  # JSON or comma-separated string
     created_at = Column(DateTime, default=datetime.utcnow)
 

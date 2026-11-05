@@ -182,7 +182,6 @@ def generate_dataset(n: int = N_EMPLOYEES) -> pd.DataFrame:
         "late_arrivals_month":  late_arrivals_month,
         "tasks_assigned":       tasks_assigned,
         "vacation_days_last_year": vacation_days_last_year,
-        "feedback":             feedback_col,
         "burnout":              burnout_label,
     })
 
@@ -197,7 +196,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     feature_cols = [
         "avg_daily_hours", "overtime_hours_week", "absence_days_month",
         "late_arrivals_month", "tasks_assigned", "vacation_days_last_year",
-        "feedback", "burnout"
+        "burnout"
     ]
     df = df.drop_duplicates(subset=feature_cols)
 

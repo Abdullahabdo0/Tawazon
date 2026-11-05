@@ -8,7 +8,8 @@ const TRANSLATIONS = {
     nav_employees:   "Employees",
     nav_assessment:  "New Assessment",
     nav_portal:      "Employee Portal",
-    lang_toggle:     "العربية",
+    nav_logout:      "Logout",
+    lang_toggle:     "🌐 العربية",
 
     // Auth
     auth_portal_title:    "Sign In",
@@ -115,13 +116,14 @@ const TRANSLATIONS = {
     assess_btn_loading:   "Analyzing...",
     assess_result_sub:    "Burnout Risk Score (0 – 100)",
     assess_workload_lbl:  "Workload Probability",
+    assess_model_lbl:     "ML Algorithm (Model)",
     assess_sentiment_lbl: "Sentiment Risk",
     assess_reasons_title: "Top Contributing Factors",
     assess_level_low:     "Low Risk",
     assess_level_med:     "Medium Risk",
     assess_level_high:    "High Risk",
     assess_api_err:       "Make sure the backend is running (uvicorn backend.main:app --reload)",
-    btn_export_pdf:       "Export / Print PDF Report",
+    btn_export_pdf:       "Print PDF Report",
     assess_anonymous_label: "🔒 Confidential & Anonymous Assessment (No identity logging)",
     assess_anonymous_hint:  "Confidential Mode Active: Input data is processed in-memory for diagnostic guidance only and not stored.",
     print_report_title:   "Tawazon AI — Burnout Risk Diagnostic Report",
@@ -178,7 +180,8 @@ const TRANSLATIONS = {
     nav_employees:   "الموظفين",
     nav_assessment:  "تقييم جديد",
     nav_portal:      "بوابة الموظف",
-    lang_toggle:     "English",
+    nav_logout:      "تسجيل الخروج",
+    lang_toggle:     "🌐 English",
 
     // Auth
     auth_portal_title:    "تسجيل الدخول",
@@ -291,7 +294,7 @@ const TRANSLATIONS = {
     assess_level_med:     "خطر متوسط",
     assess_level_high:    "خطر مرتفع",
     assess_api_err:       "تأكد من تشغيل الباك إند (uvicorn backend.main:app --reload)",
-    btn_export_pdf:       "📄 طباعة / حفظ كتقرير PDF",
+    btn_export_pdf:       "طباعة تقرير PDF",
     assess_anonymous_label: "🔒 تقييم سري بدون حفظ هوية (حماية الخصوصية)",
     assess_anonymous_hint:  "الوضع السري مفعّل: البيانات تُعالج للتنبؤ اللحظي فقط ولن تُسجل في السجلات العلنية.",
     print_report_title:   "منصة توازن (Tawazon) — تقرير تشخيص خطر الاحتراق الوظيفي",
@@ -403,9 +406,13 @@ function applyLanguage() {
     el.placeholder = i18n.t(el.getAttribute("data-i18n-ph"));
   });
 
-  // Update the lang toggle button text
+  // Update the lang toggle button and logout button text & icons
   document.querySelectorAll(".lang-btn").forEach(btn => {
-    btn.textContent = i18n.t("lang_toggle");
+    btn.innerHTML = `<span class="nav-btn-icon">🌐</span> <span>${currentLang === "en" ? "العربية" : "English"}</span>`;
+  });
+
+  document.querySelectorAll(".btn-nav-logout").forEach(btn => {
+    btn.innerHTML = `<span class="nav-btn-icon">🚪</span> <span>${currentLang === "en" ? "Logout" : "تسجيل الخروج"}</span>`;
   });
 
   // Dispatch event so page-specific JS can react

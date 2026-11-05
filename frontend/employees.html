@@ -6,19 +6,20 @@
   <title>Tawazon — Employees</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <nav>
   <div class="nav-start">
-    <a href="index.html" class="nav-brand">⚡ Tawa<span>zon</span> (Admin)</a>
+    <a href="index.html" class="nav-brand"><img src="assets/logo.png" alt="Tawazon Logo" class="brand-logo-img" /><span class="brand-tawa">Tawa</span><span class="brand-zon">zon</span> <span class="brand-role">(Admin)</span></a>
     <a href="index.html"           data-i18n="nav_dashboard">Dashboard</a>
     <a href="employees.html"       data-i18n="nav_employees" class="active">Employees</a>
   </div>
   <div class="nav-end">
-    <button class="lang-btn" onclick="i18n.toggle()">العربية</button>
-    <button class="btn-nav-logout" onclick="AUTH.logout()">خروج / Logout</button>
+    <button class="lang-btn" onclick="i18n.toggle()"><span class="nav-btn-icon">🌐</span> <span>العربية</span></button>
+    <button class="btn-nav-logout" onclick="AUTH.logout()"><span class="nav-btn-icon">🚪</span> <span>Logout</span></button>
   </div>
 </nav>
 
@@ -192,10 +193,7 @@
           </div>
         </div>
 
-        <div class="form-group" style="margin-top:1rem;">
-          <label data-i18n="assess_fb_label">Employee Feedback / Sentiment (English only)</label>
-          <input type="text" id="editFeedback" />
-        </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-action" onclick="closeModal('editModal')" data-i18n="emp_modal_btn_cancel">Cancel</button>
@@ -253,7 +251,6 @@
     document.getElementById("editLate").value = emp.late_arrivals_month != null ? emp.late_arrivals_month : "";
     document.getElementById("editTasks").value = emp.tasks_assigned != null ? emp.tasks_assigned : "";
     document.getElementById("editVacation").value = emp.vacation_days_last_year != null ? emp.vacation_days_last_year : "";
-    document.getElementById("editFeedback").value = emp.feedback || "";
 
     document.getElementById("editModal").classList.add("show");
   }
@@ -329,9 +326,9 @@
       return `
       <tr>
         <td><strong>${escapeHTML(e.employee_id)}</strong></td>
-        <td>
-          <div style="font-weight:700;">${escapeHTML(e.name || "—")}</div>
-          <div style="font-size:.78rem; color:var(--muted); display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+        <td class="col-name">
+          <div class="emp-name-title">${escapeHTML(e.name || "—")}</div>
+          <div class="emp-name-sub">
             <span>@${escapeHTML(e.username)}</span>
             ${metaLine ? `<span>• ${escapeHTML(metaLine)}</span>` : ""}
           </div>
@@ -360,7 +357,7 @@
         <thead>
           <tr>
             <th data-i18n="emp_col_id">${i18n.t("emp_col_id")}</th>
-            <th data-i18n="emp_col_name">${i18n.t("emp_col_name")}</th>
+            <th class="col-name" data-i18n="emp_col_name">${i18n.t("emp_col_name")}</th>
             <th data-i18n="emp_col_hours">${i18n.t("emp_col_hours")}</th>
             <th data-i18n="emp_col_ot">${i18n.t("emp_col_ot")}</th>
             <th data-i18n="emp_col_abs">${i18n.t("emp_col_abs")}</th>
@@ -457,8 +454,6 @@
     if (tasks !== "") payload.tasks_assigned = parseInt(tasks);
     const vac = document.getElementById("editVacation").value;
     if (vac !== "") payload.vacation_days_last_year = parseInt(vac);
-    const fb = document.getElementById("editFeedback").value.trim();
-    if (fb !== "") payload.feedback = fb;
 
     if (pwd) payload.password = pwd;
 

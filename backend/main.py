@@ -45,7 +45,6 @@ ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT))
 
 from database import init_db, SessionLocal, User, Assessment, hash_password, verify_password
-from sentiment import load_sentiment_model, sentiment_risk as _sentiment_risk
 from risk import compute_risk
 from explain import get_top_reasons
 
@@ -85,8 +84,6 @@ async def lifespan(app: FastAPI):
     else:
         print(f"[Startup] ⚠️ Model not found at {MODEL_PATH}.")
 
-    # 3. Load NLP Sentiment Model
-    load_sentiment_model()
 
     # 4. Sync Initial Employees CSV to DB if DB is empty
     db = SessionLocal()
@@ -297,8 +294,6 @@ def _seed_employees_from_csv(db: Session):
         return
 
     probs = workload_model.predict_proba(df[NUMERIC_FEATURES])[:, 1] if workload_model else [0.5]*len(df)
-    unique_feedbacks = df["feedback"].dropna().unique()
-    sentiment_map = {fb: _sentiment_risk(str(fb)) for fb in unique_feedbacks}
 
     for idx, row in df.iterrows():
         emp_id = str(row["employee_id"])
@@ -319,10 +314,10 @@ def _seed_employees_from_csv(db: Session):
         db.flush()
 
         w_prob = float(probs[idx])
-        fb_text = str(row["feedback"])
-        s_risk = sentiment_map.get(fb_text, 0.5)
-        score, level = compute_risk(w_prob, s_risk)
-        reasons = get_top_reasons(workload_model, row.to_dict(), s_risk, top_n=3)
+        fb_text = str(row.get("feedback", ""))
+        s_risk = 0.0
+        score, level = compute_risk(w_prob)
+        reasons = get_top_reasons(workload_model, row.to_dict(), top_n=3)
 
         assessment = Assessment(
             user_id=user.id,
@@ -378,9 +373,9 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 def predict_assessment(input_data: AssessmentInput):
     data = input_data.model_dump()
     w_prob = _get_workload_prob(data)
-    s_risk = _sentiment_risk(data.get("feedback", ""))
-    score, level = compute_risk(w_prob, s_risk)
-    reasons = get_top_reasons(workload_model, data, s_risk, top_n=3)
+    s_risk = 0.0
+    score, level = compute_risk(w_prob)
+    reasons = get_top_reasons(workload_model, data, top_n=3)
     return PredictResponse(
         risk_score=score,
         level=level,
@@ -400,9 +395,9 @@ def submit_or_update_assessment(user_id: int, input_data: AssessmentInput, db: S
 
     data = input_data.model_dump()
     w_prob = _get_workload_prob(data)
-    s_risk = _sentiment_risk(data["feedback"])
-    score, level = compute_risk(w_prob, s_risk)
-    reasons = get_top_reasons(workload_model, data, s_risk, top_n=3)
+    s_risk = 0.0
+    score, level = compute_risk(w_prob)
+    reasons = get_top_reasons(workload_model, data, top_n=3)
 
     new_assessment = Assessment(
         user_id=user.id,
@@ -633,9 +628,9 @@ def update_employee(user_id: int, req: UpdateEmployeeRequest, db: Session = Depe
             "feedback": feedback
         }
         w_prob = _get_workload_prob(data)
-        s_risk = _sentiment_risk(feedback)
-        score, level = compute_risk(w_prob, s_risk)
-        reasons = get_top_reasons(workload_model, data, s_risk, top_n=3)
+        s_risk = 0.0
+        score, level = compute_risk(w_prob)
+        reasons = get_top_reasons(workload_model, data, top_n=3)
 
         if latest:
             latest.avg_daily_hours = avg_daily_hours

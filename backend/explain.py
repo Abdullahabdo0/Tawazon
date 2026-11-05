@@ -1,15 +1,16 @@
 """
 explain.py
 ==========
-SHAP-based explainability for the Workload (Random Forest) model.
-Returns the top N feature contributions for a single employee prediction.
+Explainable AI (XAI) using SHAP (Shapley Additive Explanations).
+Explains why an employee was flagged for burnout risk by identifying
+the top contributing workload features from the Random Forest model.
 """
 
+from typing import Dict, List, Any, Optional
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any
 
-# Feature labels (human-readable names for display)
+
 FEATURE_NAMES = [
     "avg_daily_hours",
     "overtime_hours_week",
@@ -20,19 +21,19 @@ FEATURE_NAMES = [
 ]
 
 FEATURE_LABELS = {
-    "avg_daily_hours":          "High daily working hours",
-    "overtime_hours_week":      "Excessive overtime hours",
-    "absence_days_month":       "Frequent absences",
-    "late_arrivals_month":      "Repeated late arrivals",
-    "tasks_assigned":           "High task load",
-    "vacation_days_last_year":  "Insufficient vacation days",
+    "avg_daily_hours":         "High daily working hours",
+    "overtime_hours_week":     "Excessive weekly overtime",
+    "absence_days_month":      "Frequent monthly absences",
+    "late_arrivals_month":     "Frequent late arrivals",
+    "tasks_assigned":          "High volume of assigned tasks",
+    "vacation_days_last_year": "Low annual vacation utilization",
 }
 
 
 def get_top_reasons(
     model,
     employee_features: Dict[str, Any],
-    sentiment_risk: float,
+    sentiment_risk: Optional[float] = None,
     top_n: int = 3,
 ) -> List[str]:
     """
@@ -44,8 +45,8 @@ def get_top_reasons(
         The trained Random Forest (or any tree-based) model.
     employee_features : dict
         Numeric feature values (keys = FEATURE_NAMES).
-    sentiment_risk : float
-        Sentiment risk score [0, 1] — added as context reason if high.
+    sentiment_risk : Optional[float]
+        Deprecated parameter retained for backward compatibility (ignored).
     top_n : int
         Number of top reasons to return.
 
@@ -65,9 +66,6 @@ def get_top_reasons(
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(df_input)
 
-        # For binary classification:
-        # If ndarray of shape (n_samples, n_features, n_classes) -> take sample 0, class 1
-        # If list of [class0, class1] -> take class 1, sample 0
         if isinstance(shap_values, list):
             sv = shap_values[1][0]
         elif isinstance(shap_values, np.ndarray):
@@ -92,25 +90,20 @@ def get_top_reasons(
             if contribution > 0:  # Only include features that push toward burnout
                 reasons.append(FEATURE_LABELS.get(feature, feature))
 
-        # If sentiment is high and we still have room, add it
-        if sentiment_risk >= 0.65 and len(reasons) < top_n:
-            reasons.append("Negative employee sentiment")
-
-        # Fallback: if no positive contributors found, use top features by value
+        # Fallback: if no positive contributors found, use rule-based fallback
         if not reasons:
-            reasons = _fallback_reasons(employee_features, sentiment_risk, top_n)
+            reasons = _fallback_reasons(employee_features, top_n)
 
         return reasons[:top_n]
 
     except Exception as e:
         # If SHAP fails for any reason, fall back to rule-based explanation
         print(f"[SHAP] Warning: {e} — using fallback explanation.")
-        return _fallback_reasons(employee_features, sentiment_risk, top_n)
+        return _fallback_reasons(employee_features, top_n)
 
 
 def _fallback_reasons(
     features: Dict[str, Any],
-    sentiment_risk: float,
     top_n: int = 3,
 ) -> List[str]:
     """
@@ -140,10 +133,6 @@ def _fallback_reasons(
     # Sort by score descending
     sorted_features = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     reasons = [FEATURE_LABELS.get(f, f) for f, _ in sorted_features[:top_n]]
-
-    # Add sentiment if high
-    if sentiment_risk >= 0.65 and len(reasons) < top_n:
-        reasons.append("Negative employee sentiment")
 
     if not reasons:
         reasons = ["Cumulative workload factors", "Work-life imbalance indicators"]

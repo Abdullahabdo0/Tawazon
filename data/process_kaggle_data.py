@@ -336,7 +336,6 @@ def main():
     # STEP 5: NLP Text Fusion — Assign Feedback Based on Real Burn Rate
     # ═══════════════════════════════════════════════════════════════════════
     print("\n[Step 5] Generating NLP feedback text matched to burn rates...")
-    df_sample["feedback"] = df_sample["Burn Rate"].apply(assign_feedback)
     
     # Count feedback categories
     neg_count = sum(1 for f in df_sample["feedback"] if f in NEGATIVE_FEEDBACK)
@@ -363,7 +362,7 @@ def main():
     final_columns = [
         "employee_id", "name", "gender", "age", "avg_daily_hours", "overtime_hours_week",
         "absence_days_month", "late_arrivals_month", "tasks_assigned",
-        "vacation_days_last_year", "feedback", "burnout"
+        "vacation_days_last_year", "burnout"
     ]
     df_final = df_sample[final_columns].copy()
     

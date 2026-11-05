@@ -6,21 +6,22 @@
   <title>Tawazon — New Assessment</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <nav>
   <div class="nav-start">
-    <a href="index.html" class="nav-brand">⚡ Tawa<span>zon</span></a>
+    <a href="index.html" class="nav-brand"><img src="assets/logo.png" alt="Tawazon Logo" class="brand-logo-img" /><span class="brand-tawa">Tawa</span><span class="brand-zon">zon</span></a>
     <a href="index.html"           data-i18n="nav_dashboard">Dashboard</a>
     <a href="employees.html"       data-i18n="nav_employees">Employees</a>
     <a href="assess.html"          data-i18n="nav_assessment" class="active">New Assessment</a>
     <a href="employee-portal.html" data-i18n="nav_portal">Employee Portal</a>
   </div>
   <div class="nav-end">
-    <button class="lang-btn" onclick="i18n.toggle()">العربية</button>
-    <button class="btn-nav-logout" onclick="AUTH.logout()">خروج / Logout</button>
+    <button class="lang-btn" onclick="i18n.toggle()"><span class="nav-btn-icon">🌐</span> <span>العربية</span></button>
+    <button class="btn-nav-logout" onclick="AUTH.logout()"><span class="nav-btn-icon">🚪</span> <span>Logout</span></button>
   </div>
 </nav>
 
@@ -67,15 +68,7 @@
           <span class="hint" data-i18n="assess_vac_hint">Range: 0 – 30 days</span>
         </div>
 
-        <div class="form-group full-width">
-          <label for="feedback" data-i18n="assess_fb_label">Employee Feedback *</label>
-          <textarea id="feedback" rows="4"
-            data-i18n-ph="assess_fb_placeholder"
-            placeholder="How does the employee feel about their workload? (Arabic or English)"
-            required></textarea>
-          <span class="hint" style="color:var(--muted);" data-i18n="assess_fb_hint">
-            Write in Arabic or English — the AI analyzes both languages.
-          </span>
+
         <div class="form-group full-width" style="display:flex;align-items:center;gap:.75rem;background:#f8fafc;padding:.85rem 1rem;border-radius:8px;border:1px solid #e2e8f0;margin-top:.5rem;">
           <input type="checkbox" id="anonymousMode" style="width:1.2rem;height:1.2rem;cursor:pointer;" />
           <div>
@@ -128,8 +121,8 @@
           <p id="resultWorkload">—</p>
         </div>
         <div class="result-detail-item">
-          <h4 data-i18n="assess_sentiment_lbl">Sentiment Risk</h4>
-          <p id="resultSentiment">—</p>
+          <h4 data-i18n="assess_model_lbl">ML Algorithm</h4>
+          <p id="resultModel" style="font-size:1.05rem; font-weight:700; color:var(--primary);">Random Forest (Tabular ML)</p>
         </div>
       </div>
 
@@ -163,13 +156,13 @@
   const EXAMPLES = {
     high:   { avg_daily_hours:12.5, overtime_hours_week:22, absence_days_month:5,
               late_arrivals_month:10, tasks_assigned:38, vacation_days_last_year:2,
-              feedback:"I feel completely exhausted and overwhelmed with work. The pressure is unbearable." },
+ },
     medium: { avg_daily_hours:9.0, overtime_hours_week:8, absence_days_month:2,
               late_arrivals_month:3, tasks_assigned:22, vacation_days_last_year:10,
-              feedback:"Work is fine, nothing special to report. Some days are tough but manageable." },
+ },
     low:    { avg_daily_hours:7.5, overtime_hours_week:1, absence_days_month:0,
               late_arrivals_month:0, tasks_assigned:12, vacation_days_last_year:20,
-              feedback:"I love my job and feel very motivated every day. Great work-life balance!" },
+ },
   };
 
   function fillExample(type) {
@@ -194,8 +187,7 @@
       errors.push("Tasks assigned must be between 1 and 60.");
     if (data.vacation_days_last_year < 0 || data.vacation_days_last_year > 30)
       errors.push("Vacation days must be between 0 and 30.");
-    if (!data.feedback || data.feedback.trim().length < 5)
-      errors.push("Please enter a feedback text (at least 5 characters).");
+
     return errors;
   }
 
@@ -221,7 +213,6 @@
     document.getElementById("resultLevelText").textContent = `${icon} ${i18n.t(levelKey)}`;
 
     document.getElementById("resultWorkload").textContent  = `${(data.workload_probability*100).toFixed(1)}%`;
-    document.getElementById("resultSentiment").textContent = `${(data.sentiment_risk*100).toFixed(1)}%`;
 
     document.getElementById("resultReasons").innerHTML =
       data.top_reasons.map(r => `<li>${i18n.translateReason(r)}</li>`).join("");
@@ -259,7 +250,7 @@
       late_arrivals_month:     parseInt(document.getElementById("late_arrivals_month").value),
       tasks_assigned:          parseInt(document.getElementById("tasks_assigned").value),
       vacation_days_last_year: parseInt(document.getElementById("vacation_days_last_year").value),
-      feedback:                document.getElementById("feedback").value.trim(),
+      feedback:                "",
     };
 
     const errors = validateForm(payload);
