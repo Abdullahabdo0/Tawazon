@@ -34,3 +34,6 @@ Desktop.ini
 # Office temporary lock files
 ~$*
 *.tmp
+
+# Documentation and presentation files (kept locally, excluded from GitHub)
+docs/
