@@ -9,7 +9,6 @@ Columns:
     late_arrivals_month    : int    [0,  15]
     tasks_assigned         : int    [5,  40]
     vacation_days_last_year: int    [0,  25]
-    feedback               : str    (one of 30 predefined sentences)
     burnout                : int    0 or 1  (target label)
 
 Logic:
@@ -49,77 +48,6 @@ EMPLOYEE_NAMES = [
     "Dalia Shawki", "Omnia Karam", "Engy Samir", "Rasha Ihab",
 ]
 
-# ── Feedback sentences ───────────────────────────────────────────────────────
-NEGATIVE_FEEDBACK = [
-    "I feel completely exhausted and overwhelmed with work.",
-    "The workload is unbearable and I can't keep up anymore.",
-    "I am burned out and feel like I'm running on empty.",
-    "There is too much pressure and I feel constantly stressed.",
-    "I dread coming to work every single day.",
-    "I have no energy left after work, even for my family.",
-    "Management never listens to our concerns about the workload.",
-    "I feel disconnected and disengaged from my job.",
-    "Deadlines are impossible and I'm always behind.",
-    "I feel unappreciated despite working extra hours every week.",
-]
-
-NEUTRAL_FEEDBACK = [
-    "Work is fine, nothing special to report.",
-    "Some days are tough but it's manageable overall.",
-    "I have an average amount of tasks and I cope with them.",
-    "The workload is sometimes challenging but okay.",
-    "I feel neutral about my job; it has its ups and downs.",
-    "Things are going okay but there is room for improvement.",
-    "I handle my tasks but sometimes feel a bit tired.",
-    "Work-life balance could be better, but it's acceptable.",
-    "I am keeping up with my responsibilities for now.",
-    "Nothing extraordinary; the job is routine and steady.",
-]
-
-POSITIVE_FEEDBACK = [
-    "I love my job and feel very motivated every day.",
-    "The work environment is fantastic and very supportive.",
-    "I feel valued and recognized for my contributions.",
-    "I have a great work-life balance and I'm very satisfied.",
-    "My manager is supportive and the team is wonderful.",
-    "I feel energized and productive in my current role.",
-    "The workload is well-distributed and completely manageable.",
-    "I enjoy challenging tasks and feel a sense of achievement.",
-    "I am proud of what our team accomplishes together.",
-    "Work is going great and I feel happily engaged.",
-]
-
-ALL_FEEDBACK = NEGATIVE_FEEDBACK + NEUTRAL_FEEDBACK + POSITIVE_FEEDBACK
-
-
-def assign_feedback(burnout_score_raw: float) -> str:
-    """
-    Map raw burnout score to a feedback category with some randomness.
-    Higher score → more likely to get negative feedback.
-    """
-    rand = random.random()
-    if burnout_score_raw > 0.65:
-        # High burnout → mostly negative, sometimes neutral
-        if rand < 0.75:
-            return random.choice(NEGATIVE_FEEDBACK)
-        else:
-            return random.choice(NEUTRAL_FEEDBACK)
-    elif burnout_score_raw > 0.35:
-        # Medium burnout → mix
-        if rand < 0.40:
-            return random.choice(NEGATIVE_FEEDBACK)
-        elif rand < 0.75:
-            return random.choice(NEUTRAL_FEEDBACK)
-        else:
-            return random.choice(POSITIVE_FEEDBACK)
-    else:
-        # Low burnout → mostly positive
-        if rand < 0.70:
-            return random.choice(POSITIVE_FEEDBACK)
-        else:
-            return random.choice(NEUTRAL_FEEDBACK)
-
-
 def generate_dataset(n: int = N_EMPLOYEES) -> pd.DataFrame:
     """Generate synthetic employee burnout dataset."""
 
@@ -158,9 +86,7 @@ def generate_dataset(n: int = N_EMPLOYEES) -> pd.DataFrame:
     threshold = 0.50
     burnout_label = (burnout_score_noisy > threshold).astype(int)
 
-    # ── Build feedback column ────────────────────────────────────────────────
-    feedback_col = [assign_feedback(s) for s in burnout_score_noisy]
-
+    
     # ── Build name column (cycle through pool, add suffix to ensure uniqueness)
     names_col = []
     pool_size = len(EMPLOYEE_NAMES)

@@ -11,7 +11,6 @@ This script performs:
     2. Data Cleaning: Drop nulls, fix types, remove outliers
     3. Stratified Sampling: Select 1000 representative employees
     4. Feature Engineering & Mapping: Convert Kaggle columns to WorkPulse schema
-    5. NLP Text Fusion: Assign realistic feedback text based on burn rate
     6. Arabic Name Generation: Assign unique employee names
     7. Save final clean employees.csv (1000 employees, 10 columns)
 
@@ -68,87 +67,6 @@ LAST_NAMES = [
     "Mansour", "Badawi", "Rashid", "Sultan", "Fahmy", "Darwish", "Farouk", "Morsi",
     "Haroun", "Gaber", "Soliman", "Helmy", "Barakat", "Shehata", "Taha", "Rizk",
 ]
-
-# ── Feedback Sentences ───────────────────────────────────────────────────────
-NEGATIVE_FEEDBACK = [
-    "I feel completely exhausted and overwhelmed with work.",
-    "The workload is unbearable and I can't keep up anymore.",
-    "I am burned out and feel like I'm running on empty.",
-    "There is too much pressure and I feel constantly stressed.",
-    "I dread coming to work every single day.",
-    "I have no energy left after work, even for my family.",
-    "Management never listens to our concerns about the workload.",
-    "I feel disconnected and disengaged from my job.",
-    "Deadlines are impossible and I'm always behind.",
-    "I feel unappreciated despite working extra hours every week.",
-    "The stress at work is affecting my health seriously.",
-    "I cannot sleep well because of work anxiety.",
-    "Every day feels like a struggle to get through.",
-    "I feel trapped in this job with no way out.",
-    "My mental health is deteriorating because of work pressure.",
-]
-
-NEUTRAL_FEEDBACK = [
-    "Work is fine, nothing special to report.",
-    "Some days are tough but it's manageable overall.",
-    "I have an average amount of tasks and I cope with them.",
-    "The workload is sometimes challenging but okay.",
-    "I feel neutral about my job; it has its ups and downs.",
-    "Things are going okay but there is room for improvement.",
-    "I handle my tasks but sometimes feel a bit tired.",
-    "Work-life balance could be better, but it's acceptable.",
-    "I am keeping up with my responsibilities for now.",
-    "Nothing extraordinary; the job is routine and steady.",
-    "Some weeks are busier than others but I manage.",
-    "The job has its challenges but nothing extreme.",
-    "I wish there were fewer meetings but overall it is fine.",
-    "My workload fluctuates but stays within reasonable limits.",
-    "I feel okay about my current position and duties.",
-]
-
-POSITIVE_FEEDBACK = [
-    "I love my job and feel very motivated every day.",
-    "The work environment is fantastic and very supportive.",
-    "I feel valued and recognized for my contributions.",
-    "I have a great work-life balance and I'm very satisfied.",
-    "My manager is supportive and the team is wonderful.",
-    "I feel energized and productive in my current role.",
-    "The workload is well-distributed and completely manageable.",
-    "I enjoy challenging tasks and feel a sense of achievement.",
-    "I am proud of what our team accomplishes together.",
-    "Work is going great and I feel happily engaged.",
-    "I look forward to coming to work every morning.",
-    "The company culture is amazing and inclusive.",
-    "I feel my career is progressing in the right direction.",
-    "My skills are being utilized well and I feel fulfilled.",
-    "I am grateful for the opportunities this job provides.",
-]
-
-
-def assign_feedback(burn_rate: float) -> str:
-    """
-    Map burn rate (0.0 to 1.0) to feedback category with controlled randomness.
-    Higher burn rate -> higher probability of negative feedback.
-    """
-    rand = random.random()
-    if burn_rate > 0.60:
-        if rand < 0.75:
-            return random.choice(NEGATIVE_FEEDBACK)
-        else:
-            return random.choice(NEUTRAL_FEEDBACK)
-    elif burn_rate > 0.35:
-        if rand < 0.35:
-            return random.choice(NEGATIVE_FEEDBACK)
-        elif rand < 0.70:
-            return random.choice(NEUTRAL_FEEDBACK)
-        else:
-            return random.choice(POSITIVE_FEEDBACK)
-    else:
-        if rand < 0.70:
-            return random.choice(POSITIVE_FEEDBACK)
-        else:
-            return random.choice(NEUTRAL_FEEDBACK)
-
 
 def generate_unique_names(n: int, genders: pd.Series) -> list:
     """Generate unique employee names based on gender from Kaggle data."""
@@ -333,18 +251,7 @@ def main():
     print(f"    vacation_days_last_year:{df_sample['vacation_days_last_year'].min()} - {df_sample['vacation_days_last_year'].max()}")
 
     # ═══════════════════════════════════════════════════════════════════════
-    # STEP 5: NLP Text Fusion — Assign Feedback Based on Real Burn Rate
-    # ═══════════════════════════════════════════════════════════════════════
-    print("\n[Step 5] Generating NLP feedback text matched to burn rates...")
-    
-    # Count feedback categories
-    neg_count = sum(1 for f in df_sample["feedback"] if f in NEGATIVE_FEEDBACK)
-    pos_count = sum(1 for f in df_sample["feedback"] if f in POSITIVE_FEEDBACK)
-    neu_count = len(df_sample) - neg_count - pos_count
-    print(f"  Feedback distribution: Negative={neg_count}, Neutral={neu_count}, Positive={pos_count}")
-
-    # ═══════════════════════════════════════════════════════════════════════
-    # STEP 6: Generate Unique Names & Employee IDs
+    # STEP 5: Generate Unique Names & Employee IDs
     # ═══════════════════════════════════════════════════════════════════════
     print("\n[Step 6] Assigning unique Arabic names and employee IDs...")
     names = generate_unique_names(N_EMPLOYEES, df_sample["Gender"])
@@ -354,7 +261,7 @@ def main():
     print(f"  Generated {len(set(names))} unique names for {N_EMPLOYEES} employees")
 
     # ═══════════════════════════════════════════════════════════════════════
-    # STEP 7: Final Assembly & Export
+    # STEP 6: Final Assembly & Export
     # ═══════════════════════════════════════════════════════════════════════
     print("\n[Step 7] Assembling final dataset...")
     

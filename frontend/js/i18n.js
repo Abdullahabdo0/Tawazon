@@ -357,7 +357,6 @@ const REASON_TRANSLATIONS = {
     "Repeated late arrivals": "تكرار مرات التأخير",
     "High task load": "عبء مهام وتكليفات مرتفع",
     "Insufficient vacation days": "رصيد إجازات غير كافٍ",
-    "Negative employee sentiment": "مشاعر سلبية ومحبطة في تعليق الموظف"
   }
 };
 

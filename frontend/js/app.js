@@ -143,11 +143,11 @@ function getPersonalizedWellnessTips(diagnosisData) {
     );
   }
 
-  // 5. Negative sentiment / psychological stress driver
-  if (hasReason("sentiment") || hasReason("negative") || (diagnosisData.sentiment_risk && diagnosisData.sentiment_risk >= 0.65)) {
+  // 5. High workload probability driver
+  if (diagnosisData.workload_probability && diagnosisData.workload_probability >= 0.70) {
     tips.push(isAr
-      ? "🗣️ دعم نفسي وتواصل شفاف: مؤشرات مشاعرك تشير لضغط نفسي وإحباط. احجز جلسة مكاشفة مع مسؤول الموارد البشرية (HR) أو مستشار نفسي لتفريغ الضغوط."
-      : "🗣️ Transparent communication & mental support: High emotional strain detected. Schedule a safe check-in with HR or a wellness counselor."
+      ? "🗣️ تواصل شفاف مع الإدارة: مؤشرات ضغط العمل التراكمي مرتفعة. ناقش مع مديرك المباشر أو قسم الموارد البشرية (HR) إعادة توزيع المهام وتخفيف الأعباء."
+      : "🗣️ Transparent communication with management: Cumulative workload indicators are elevated. Schedule a check-in with HR or management to rebalance assignments."
     );
   }
 

@@ -33,7 +33,6 @@ FEATURE_LABELS = {
 def get_top_reasons(
     model,
     employee_features: Dict[str, Any],
-    sentiment_risk: Optional[float] = None,
     top_n: int = 3,
 ) -> List[str]:
     """
@@ -45,8 +44,6 @@ def get_top_reasons(
         The trained Random Forest (or any tree-based) model.
     employee_features : dict
         Numeric feature values (keys = FEATURE_NAMES).
-    sentiment_risk : Optional[float]
-        Deprecated parameter retained for backward compatibility (ignored).
     top_n : int
         Number of top reasons to return.
 

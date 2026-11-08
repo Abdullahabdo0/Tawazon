@@ -24,7 +24,6 @@ MEDIUM_MAX = 66   # 34 – 66 → Medium
 
 def compute_risk(
     workload_prob: float,
-    sentiment_risk_score: Optional[float] = None
 ) -> Tuple[int, str]:
     """
     Compute the final burnout Risk Score and Level directly from ML model probability.
@@ -33,8 +32,6 @@ def compute_risk(
     ----------
     workload_prob : float
         Probability output from the ML workload model [0.0, 1.0].
-    sentiment_risk_score : Optional[float]
-        Deprecated parameter retained for backward compatibility (ignored).
 
     Returns
     -------
@@ -57,4 +54,4 @@ def compute_risk(
 
 def level_color(level: str) -> str:
     """Return a hex colour code for UI display."""
-    return {"Low": "#22c55e", "Medium": "#f59e0b", "High": "#ef4444"}.get(level, "#6b7280")
+    return {"Low": "#22c55e", "Medium": "#f59e0b", "High": "#f30808"}.get(level, "#6b7280")
